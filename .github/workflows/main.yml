@@ -1,0 +1,39 @@
+name: Compile document
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install
+        run: sudo apt install texlive-latex-base texlive-latex-extra
+
+      # compile
+      - name: Compile
+        run: | 
+          ls -lah
+          pdflatex main.tex
+          bibtex main.aux
+          pdflatex main.tex
+          pdflatex main.tex
+          
+      - name: Rename
+        run: mv main.pdf SQL_Report.pdf
+          
+      - name: add and commit
+        uses: EndBug/add-and-commit@latest
+        with:
+          add: SQL_Report.pdf
+          message: Compiled tex to PDF
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
